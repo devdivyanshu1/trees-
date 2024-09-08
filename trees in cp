@@ -1,48 +1,58 @@
 #include <iostream>
+
 #include <vector>
+
 using namespace std;
 
-void dfs(int node, int parent, vector<int>& level, int count, const vector<vector<int>>& adj) {
+void dfs(int node, int parent, vector < int > & level, int count,
+    const vector < vector < int >> & adj) {
     level[node] = count;
-    for (auto it : adj[node]) {
+    for (auto it: adj[node]) {
         if (it != parent) {
             dfs(it, node, level, count + 1, adj);
         }
     }
 }
 
-void dfs1(int node, int parent, const vector<vector<int>>& adj, vector<int>& parents) {
+void dfs1(int node, int parent,
+    const vector < vector < int >> & adj, vector < int > & parents) {
     parents[node] = parent;
-    for (auto it : adj[node]) {
+    for (auto it: adj[node]) {
         if (it != parent) {
             dfs1(it, node, adj, parents);
         }
     }
 }
 
-void dfs2(int node, const vector<vector<int>>& adj, vector<int>& child) {
-    for (auto it : adj[node]) {
-        if (it != node) {
-            dfs2(it, adj, child);
+void dfs2(int node, int parent,
+    const vector < vector < int >> & adj, vector < int > & child) {
+    for (auto it: adj[node]) {
+        if (it != parent) {
+            dfs2(it, node, adj, child);
             child[node] += child[it];
         }
     }
     child[node]++;
 }
 
-void dfs4(int node, const vector<vector<int>>& adj, vector<int>& farthest) {
+void dfs4(int node, int parent,
+    const vector < vector < int >> & adj, vector < int > & farthest) {
     farthest[node] = 0;
-    for (auto it : adj[node]) {
-        if (it != node) {
-            dfs4(it, adj, farthest);
+    for (auto it: adj[node]) {
+        if (it != parent) {
+            dfs4(it, node, adj, farthest);
             farthest[node] = max(farthest[node], 1 + farthest[it]);
         }
     }
 }
 
-void dfs5(int node, int parent, const vector<vector<int>>& adj, vector<int>& farthest, vector<int>& ans) {
-    pair<int, int> pr = {-1, -1};
-    for (auto it : adj[node]) {
+void dfs5(int node, int parent,
+    const vector < vector < int >> & adj, vector < int > & farthest, vector < int > & ans) {
+    pair < int, int > pr = {
+        -1,
+        -1
+    };
+    for (auto it: adj[node]) {
         if (it != parent) {
             dfs5(it, node, adj, farthest, ans);
             int curr = farthest[it];
@@ -57,9 +67,10 @@ void dfs5(int node, int parent, const vector<vector<int>>& adj, vector<int>& far
     ans[node] = pr.first + pr.second + 2;
 }
 
-void dfs6(int node, int parent, vector<int>& intime, vector<int>& outtime, int& gtime, const vector<vector<int>>& adj) {
+void dfs6(int node, int parent, vector < int > & intime, vector < int > & outtime, int & gtime,
+    const vector < vector < int >> & adj) {
     intime[node] = gtime++;
-    for (auto it : adj[node]) {
+    for (auto it: adj[node]) {
         if (it != parent) {
             dfs6(it, node, intime, outtime, gtime, adj);
         }
@@ -68,36 +79,61 @@ void dfs6(int node, int parent, vector<int>& intime, vector<int>& outtime, int& 
 }
 
 int main() {
-    // Assuming adj is already initialized with the tree structure
-    vector<vector<int>> adj;
-    
-    // Initialize variables for different DFS operations
+    // Example tree with 5 nodes (0 to 4)
+    vector < vector < int >> adj = {
+        {
+            1,
+            2
+        }, // Node 0 is connected to nodes 1 and 2
+        {
+            0,
+            3,
+            4
+        }, // Node 1 is connected to nodes 0, 3, and 4
+        {
+            0
+        }, // Node 2 is connected to node 0
+        {
+            1
+        }, // Node 3 is connected to node 1
+        {
+            1
+        } // Node 4 is connected to node 1
+    };
+
     int n = adj.size();
-    vector<int> level(n), parents(n), child(n), farthest(n), ans(n), intime(n), outtime(n);
-    
+
+    // Ensure n > 0 before proceeding
+    if (n == 0) {
+        cout << "Tree is empty" << endl;
+        return 0;
+    }
+
+    vector < int > level(n, -1), parents(n, -1), child(n, 0), farthest(n, 0), ans(n, 0), intime(n, -1), outtime(n, -1);
+
     // Level of each node
     dfs(0, -1, level, 0, adj);
-    
+
     // Parent of each node
     dfs1(0, -1, adj, parents);
-    
+
     // Number of children of each node
-    dfs2(0, adj, child);
-    
+    dfs2(0, -1, adj, child);
+
     // Farthest leaf node for each node in subtree
-    dfs4(0, adj, farthest);
-    
+    dfs4(0, -1, adj, farthest);
+
     // Subtree diameter for each node
     dfs5(0, -1, adj, farthest, ans);
-    
+
     // In-time and out-time trick for ancestor checks
     int gtime = 0;
     dfs6(0, -1, intime, outtime, gtime, adj);
-    
+
     // Example: Check if node b is an ancestor of node a
     int a = 0, b = 1; // Example nodes
     bool isAncestor = intime[b] < intime[a] && outtime[b] > outtime[a];
     cout << "Is node " << b << " an ancestor of node " << a << "? " << (isAncestor ? "Yes" : "No") << endl;
-    
+
     return 0;
 }
