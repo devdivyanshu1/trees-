@@ -46,27 +46,34 @@ void dfs4(int node, int parent,
     }
 }
 
-void dfs5(int node, int parent,
-    const vector < vector < int >> & adj, vector < int > & farthest, vector < int > & ans) {
-    pair < int, int > pr = {
-        -1,
-        -1
-    };
-    for (auto it: adj[node]) {
-        if (it != parent) {
-            dfs5(it, node, adj, farthest, ans);
-            int curr = farthest[it];
-            if (pr.first == -1 || pr.first < curr) {
-                pr.second = pr.first;
-                pr.first = curr;
-            } else if (pr.second < curr) {
-                pr.second = curr;
+void dfs(int node, vector<int> adj[], int par, vector<int> &ans)
+{
+    ans[node] = 0;
+    int max1 = 0, max2 = 0;
+
+    for (auto it : adj[node])
+    {
+        if (it != par)
+        {
+            dfs(it, adj, node, ans);
+            int curr = ans[it] + 1;
+            ans[node] = max(ans[node], curr);
+
+            if (curr >= max1)
+            {
+                max2 = max1;
+                max1 = curr;
+            }
+            else if (curr > max2)
+            {
+                max2 = curr;
             }
         }
     }
-    ans[node] = pr.first + pr.second + 2;
-}
 
+    int dia_node = max1 + max2;
+    ann = max(ann, dia_node);
+}
 void dfs6(int node, int parent, vector < int > & intime, vector < int > & outtime, int & gtime,
     const vector < vector < int >> & adj) {
     intime[node] = gtime++;
