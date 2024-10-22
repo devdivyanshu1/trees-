@@ -22,7 +22,7 @@ void dfs(int node, int par, vector<int> adj[], vector<int>& ans) {
             }
         }
     }
-    aa = max(aa, h1 + h2);
+    aa = max(aa, h1 + h2);;
     ans[node] = h1;
 }
 
